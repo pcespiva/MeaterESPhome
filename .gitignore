@@ -1,0 +1,8 @@
+.venv/
+*.pyc
+build/
+.esphome/
+.vscode/
+run_esphome.ps1
+requirments.txt
+docker-compose.yml

@@ -1,0 +1,104 @@
+substitutions:
+  device_name: meater_example
+  friendly_name: meater_example
+  meater_mac: ""
+  meater_id: ""
+  meater_connect_on_demand: true
+
+esphome:
+  name: ${device_name}
+  includes:
+    - ../custom_components/meater/meater.h
+  on_boot:
+    then:
+      - meater:
+          id: meater_plus_node
+          mac_address: "${meater_mac}"
+          notify_timeout: 30s
+          tip:
+            name: "MEATER Tip Temperature"
+            internal: true
+          ambient:
+            name: "MEATER Ambient Temperature"
+            internal: true
+          battery:
+            name: "MEATER Battery"
+            internal: true
+          firmware:
+            name: "MEATER firmware"
+            internal: true
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+ble_client:
+  - mac_address: "AA:BB:CC:DD:EE:FF"
+    auto_connect: false
+    id: meater_plus
+
+wifi:
+  ssid: "YOUR_SSID"
+  password: "YOUR_PASSWORD"
+
+logger:
+  level: DEBUG
+
+sensor:
+  - platform: template
+    name: "MEATER Tip Temperature"
+    id: meater_tip_sensor
+    unit_of_measurement: "°C"
+    accuracy_decimals: 2
+    internal: true
+
+  - platform: template
+    name: "MEATER Ambient Temperature"
+    id: meater_ambient_sensor
+    unit_of_measurement: "°C"
+    accuracy_decimals: 2
+    internal: true
+
+  - platform: template
+    name: "MEATER Battery"
+    id: meater_battery_sensor
+    unit_of_measurement: "%"
+    internal: true
+
+text_sensor:
+  - platform: template
+    name: "MEATER firmware"
+    id: meater_firmware_text
+    internal: true
+
+  - platform: template
+    name: "MEATER Status"
+    id: meater_status_text
+    internal: true
+ 
+
+# Example OTA and API for easy flashing and debugging
+api:
+
+ota:
+  - platform: esphome
+
+# Small button example: jednorázové připojení Meater
+button:
+  - platform: template
+    name: "Meater: Connect Once"
+    on_press:
+      then:
+        - lambda: |-
+            if (meater_instance) {
+              meater_instance->request_connect();
+            }
+  - platform: template
+    name: "Meater: Disconnect Now"
+    on_press:
+      then:
+        - lambda: |-
+            if (meater_instance) {
+              meater_instance->request_disconnect();
+            }
